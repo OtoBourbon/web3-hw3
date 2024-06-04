@@ -1,25 +1,48 @@
-import logo from './logo.svg';
+import { useState } from 'react';
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const apiKey = "2eb546d412d68a97fc253929c655f54f";
+    const [weatherData, setWeatherData] = useState({});
+    const [city, setCity] = useState("");
+
+    const getWeather = (event) => {
+        if(event.key === "Enter") {
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+                .then(response => response.json())
+                .then(data => {
+                    setWeatherData(data);
+                    setCity("");
+                });
+        }
+    };
+
+    return (
+        <div className="App">
+            <input 
+                className='inputCity' 
+                placeholder='Enter city...' 
+                value={city} 
+                onChange={e => setCity(e.target.value)} 
+                onKeyPress={getWeather}
+            />
+
+            {
+                weatherData.cod === '404' ? (
+                    <div>
+                        <p className='errorP'>ქალაქი ნაპოვნიო არაა</p>
+                    </div>
+                ) : (
+                    typeof weatherData.main !== 'undefined' && (
+                        <div className="weatherInfo">
+                            <p>{weatherData.name}</p>
+                            <p>{Math.round(weatherData.main.temp)}°C</p>
+                        </div>
+                    )
+                )
+            }
+        </div>
+    );
 }
 
 export default App;
